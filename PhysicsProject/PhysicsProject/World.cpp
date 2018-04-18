@@ -9,10 +9,10 @@ namespace
 {
 	vert_t vie[] =
 	{
-		vert_t( 1.0f,  1.0f, 0.0f,   RGBA(1.0f, 0.0f, 0.0f),   1.0f, 1.0f),
-		vert_t( 1.0f,  0.0f, 0.0f,   RGBA(0.0f, 1.0f, 0.0f),   1.0f, 0.0f),
-		vert_t( 0.0f,  0.0f, 0.0f,  RGBA(0.0f, 0.0f, 1.0f),   0.0f, 0.0f),
-		vert_t( 0.0f,  1.0f, 0.0f,  RGBA(1.0f, 1.0f, 0.0f),   0.0f, 1.0f)
+		vert_t( 0.5f,  0.5f, 0.0f,   RGBA(1.0f, 0.0f, 0.0f),   1.0f, 1.0f),
+		vert_t( 0.5f, -0.5f, 0.0f,   RGBA(0.0f, 1.0f, 0.0f),   1.0f, 0.0f),
+		vert_t(-0.5f, -0.5f, 0.0f,  RGBA(0.0f, 0.0f, 1.0f),   0.0f, 0.0f),
+		vert_t(-0.5f,  0.5f, 0.0f,  RGBA(1.0f, 1.0f, 0.0f),   0.0f, 1.0f)
 	};
 
 	vert_t vertices[] = 
@@ -85,7 +85,7 @@ World::World(Vector2 displaySize)
 //================================================================
 void World::StartUp()
 {
-	n = new Shader("vert.vs", "frag.fs", vie, 4, i , 6);
+	n = new Shader("vert.vs", "frag.fs", vertices, 36);
 }
 
 

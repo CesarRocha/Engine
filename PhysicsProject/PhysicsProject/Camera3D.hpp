@@ -36,7 +36,7 @@ public:
 	void UpdateMouseMovement();
 
 	const Vector3 GetForwardVector() { return m_forward; }
-	const Vector3 GetRightVector() { return m_right; }
+	const Vector3 GetLeftVector() { return m_left; }
 	const Vector3 GetUpVector() { return m_up; }
 
 
@@ -47,7 +47,7 @@ private:
 	Vector3 m_worldUp;
 
 	Vector3 m_forward;
-	Vector3 m_right;
+	Vector3 m_left;
 	Vector3 m_up;
 
 	float m_movementSpeed;

@@ -41,17 +41,17 @@ Camera3D::Camera3D(Vector3 position, float yaw, float pitch)
 void Camera3D::UpdateVectors()
 {
 	Vector3 forward;
-	forward.x = cos(ToRadians(m_orientation.m_yaw)) * cos(ToRadians(m_orientation.m_pitch));
+	forward.x = sin(ToRadians(m_orientation.m_pitch));
 	forward.y = sin(ToRadians(m_orientation.m_yaw)) * cos(ToRadians(m_orientation.m_pitch));
-	forward.z = sin(ToRadians(m_orientation.m_pitch));
+	forward.z = -(cos(ToRadians(m_orientation.m_yaw)) * cos(ToRadians(m_orientation.m_pitch)));  
 	forward.Normalize();
 	m_forward = forward;
 
 	Vector3 right = m_forward.Cross(m_worldUp);
 	right.Normalize();
-	m_right = right;
+	m_left = right; // Vector3(-right.x, -right.y, -right.z);
 
-	Vector3 up = m_right.Cross(m_forward);
+	Vector3 up = m_left.Cross(m_forward);
 	up.Normalize();
 	m_up = up;
 }
@@ -64,9 +64,9 @@ void Camera3D::MoveDirection(CameraMovement direction)
 	if (direction == BACKWARD)
 		m_position -= m_forward * m_movementSpeed;
 	if (direction == LEFT)
-		m_position -= m_right * m_movementSpeed;
+		m_position -= m_left * m_movementSpeed;
 	if (direction == RIGHT)
-		m_position += m_right * m_movementSpeed;
+		m_position += m_left * m_movementSpeed;
 	if (direction == UP)
 		m_position += m_up * m_movementSpeed;
 	if (direction == DOWN)

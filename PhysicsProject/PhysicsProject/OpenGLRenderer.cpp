@@ -148,7 +148,7 @@ Matrix4x4 OpenGLRenderer::CreateLookAtMatrix(Vector3& r, Vector3& u, Vector3& f,
 {
 	return Matrix4x4
 	(
-		Vector4(r.x, r.y, r.z, 0.0f), Vector4(u.z, u.y, u.z, 0.0f), Vector4(f.z, f.y, f.z, 0.0f), Vector4(-p.x, -p.y, -p.z, 1.0f)
+		Vector4(r.x, r.y, r.z, 0.0f), Vector4(u.z, u.y, u.z, 0.0f), Vector4(f.x, f.y, f.z, 0.0f), Vector4(-p.x, -p.y, -p.z, 1.0f)
 	);
 }
 Matrix4x4 OpenGLRenderer::CreateProjectionMatrix(float fov, float aspect, float zNear, float zFar)

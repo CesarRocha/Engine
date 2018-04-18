@@ -39,7 +39,7 @@ struct Matrix4x4
 	static Matrix4x4 GetScalingMatrix(const Vector3& s);
 
 private:
-	Vector4 m_iBase, m_jBase, m_kBase, m_trans;
+	Vector4 m_i, m_j, m_k, m_t;
 };
 
 

@@ -57,6 +57,7 @@ Shader::~Shader()
 }
 
 #include "Camera3D.hpp"
+float dt = 0.0f;
 //================================================================
 void Shader::Render()
 {
@@ -76,14 +77,23 @@ void Shader::Render()
  	Vector3 pos			= Camera3D::g_masterCamera->m_position;
  	Vector3 forward		= Camera3D::g_masterCamera->GetForwardVector();
  	Vector3 up			= Camera3D::g_masterCamera->GetUpVector();
- 	Vector3 right		= Camera3D::g_masterCamera->GetRightVector();
+ 	Vector3 right		= Camera3D::g_masterCamera->GetLeftVector();
 
+	//Working for example
+	//view.Translate(Vector3(.0f, .0f, -3.0f));
+	//proj = OpenGLRenderer::CreateProjectionMatrix(60.0f, (16.0f / 9.0f), 0.1f, 15000.0f);
+	//model.Rotate(XAXIS, -45.0f);
+
+	//forward = Vector3(0.0f, 0.0f, -1.0f);
+	//right = Vector3(1.0f, 0.0f, 0.0f);
+	//up = Vector3(0.0f, 1.0f, 0.0f);
+
+	view = OpenGLRenderer::CreateLookAtMatrix(right, up, forward, pos); //Skewed
 	proj = OpenGLRenderer::CreateProjectionMatrix(60.0f, (16.0f / 9.0f), 0.1f, 15000.0f);
-	view = OpenGLRenderer::CreateLookAtMatrix(right, up, forward, pos);
-
+	
 	bindResult = BindUniformMat4("gModel", model);
-	bindResult = BindUniformMat4("gView", view);
-	bindResult = BindUniformMat4("gProj", proj);
+	bindResult = BindUniformMat4("gView",  view);
+	bindResult = BindUniformMat4("gProj",  proj);
 
 
 	glBindVertexArray(m_VAO);		
@@ -227,7 +237,7 @@ bool Shader::BindUniformInt(const char* uniformName, const int& val)
 	glUniform1iv(loc, 1, &val);
 	return true;
 }
-bool Shader::BindUniformMat4(const char* uniformName, const Matrix4x4 val)
+bool Shader::BindUniformMat4(const char* uniformName, const Matrix4x4& val)
 {
 	GLint loc = glGetUniformLocation(m_programID, uniformName);
 	if (loc < 0)

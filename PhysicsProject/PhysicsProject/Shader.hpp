@@ -39,7 +39,8 @@ public:
 	bool BindUniformVec3(const char* uniformName, const Vector3 val);
 	bool BindUniformVec4(const char* uniformName, const Vector4 val);
 	bool BindUniformInt(const char* uniformName, const int& val);
-	bool BindUniformMat4(const char* uniformName, const Matrix4x4 val);
+	//bool BindUniformMat4(const char* uniformName, const Matrix4x4 val);
+	bool BindUniformMat4(const char* uniformName, const Matrix4x4& val);
 	bool BindUniformTexture(const char* uniformName, const unsigned int& textureID);
 
 

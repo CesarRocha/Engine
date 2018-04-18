@@ -8,21 +8,21 @@
 //================================================================
 Matrix4x4::Matrix4x4()
 {
-	m_iBase.x = 1.0f;	m_jBase.x = 0.0f;	m_kBase.x = 0.0f;	m_trans.x = 0.0f;
-	m_iBase.y = 0.0f;	m_jBase.y = 1.0f;	m_kBase.y = 0.0f;	m_trans.y = 0.0f;
-	m_iBase.z = 0.0f;	m_jBase.z = 0.0f;	m_kBase.z = 1.0f;	m_trans.z = 0.0f;
-	m_iBase.w = 0.0f;	m_jBase.w = 0.0f;	m_kBase.w = 0.0f;	m_trans.w = 1.0f;
+	m_i.x = 1.0f;	m_j.x = 0.0f;	m_k.x = 0.0f;	m_t.x = 0.0f;
+	m_i.y = 0.0f;	m_j.y = 1.0f;	m_k.y = 0.0f;	m_t.y = 0.0f;
+	m_i.z = 0.0f;	m_j.z = 0.0f;	m_k.z = 1.0f;	m_t.z = 0.0f;
+	m_i.w = 0.0f;	m_j.w = 0.0f;	m_k.w = 0.0f;	m_t.w = 1.0f;
 }
 Matrix4x4::Matrix4x4(const Vector4& iBase_, const Vector4& jBase_, const Vector4& kBase_, const Vector4& translation_)
 {
-	m_iBase = iBase_;	m_jBase = jBase_;	m_kBase = kBase_;	m_trans = translation_;
+	m_i = iBase_;	m_j = jBase_;	m_k = kBase_;	m_t = translation_;
 }
 Matrix4x4::Matrix4x4(const float c[])
 {
-	m_iBase.x = c[0];	m_jBase.x = c[1];	m_kBase.x = c[2];	m_trans.x = c[3];
-	m_iBase.y = c[4];	m_jBase.y = c[5];	m_kBase.y = c[6];	m_trans.y = c[7];
-	m_iBase.z = c[8];	m_jBase.z = c[9];	m_kBase.z = c[10];	m_trans.z = c[11];
-	m_iBase.w = c[12];	m_jBase.w = c[13];	m_kBase.w = c[14];	m_trans.w = c[15];
+	m_i.x = c[0];	m_j.x = c[1];	m_k.x = c[2];	m_t.x = c[3];
+	m_i.y = c[4];	m_j.y = c[5];	m_k.y = c[6];	m_t.y = c[7];
+	m_i.z = c[8];	m_j.z = c[9];	m_k.z = c[10];	m_t.z = c[11];
+	m_i.w = c[12];	m_j.w = c[13];	m_k.w = c[14];	m_t.w = c[15];
 }
 
 
@@ -30,9 +30,9 @@ Matrix4x4::Matrix4x4(const float c[])
 //================================================================
 void Matrix4x4::Scale(float s)
 {
-	m_iBase.x *= s;
-	m_jBase.y *= s;
-	m_kBase.z *= s;
+	m_i.x *= s;
+	m_j.y *= s;
+	m_k.z *= s;
 }
 void Matrix4x4::Rotate(RotateAxis axis, float degrees)
 {
@@ -49,17 +49,17 @@ void Matrix4x4::Rotate(RotateAxis axis, float degrees)
 }
 void Matrix4x4::Translate(const Vector3& v)
 {
-	m_trans.x = v.x;
-	m_trans.y = v.y;
-	m_trans.z = v.z;
+	m_t.x = v.x;
+	m_t.y = v.y;
+	m_t.z = v.z;
 }
 void Matrix4x4::Transpose()
 {
 	Matrix4x4 t = *this;
-	m_iBase = Vector4(t.m_iBase.x, t.m_jBase.x, t.m_kBase.x, t.m_trans.x);
-	m_jBase = Vector4(t.m_iBase.y, t.m_jBase.y, t.m_kBase.y, t.m_trans.y);
-	m_kBase = Vector4(t.m_iBase.z, t.m_jBase.z, t.m_kBase.z, t.m_trans.z);
-	m_trans = Vector4(t.m_iBase.w, t.m_jBase.w, t.m_kBase.w, t.m_trans.w);
+	m_i = Vector4(t.m_i.x, t.m_j.x, t.m_k.x, t.m_t.x);
+	m_j = Vector4(t.m_i.y, t.m_j.y, t.m_k.y, t.m_t.y);
+	m_k = Vector4(t.m_i.z, t.m_j.z, t.m_k.z, t.m_t.z);
+	m_t = Vector4(t.m_i.w, t.m_j.w, t.m_k.w, t.m_t.w);
 }
 
 
@@ -129,18 +129,18 @@ Matrix4x4 Matrix4x4::operator + (const Matrix4x4& m)
 {
 	return Matrix4x4
 	(
-		m_iBase + m.m_iBase,
-		m_jBase + m.m_jBase,
-		m_kBase + m.m_kBase,
-		m_trans + m.m_trans
+		m_i + m.m_i,
+		m_j + m.m_j,
+		m_k + m.m_k,
+		m_t + m.m_t
 	);
 }
 void Matrix4x4::operator = (const Matrix4x4& m)
 {
-	m_iBase = m.m_iBase;
-	m_jBase = m.m_jBase;
-	m_kBase = m.m_kBase;
-	m_trans = m.m_trans;
+	m_i = m.m_i;
+	m_j = m.m_j;
+	m_k = m.m_k;
+	m_t = m.m_t;
 }
 Matrix4x4 Matrix4x4::operator * (const Matrix4x4& m)
 {
@@ -148,34 +148,34 @@ Matrix4x4 Matrix4x4::operator * (const Matrix4x4& m)
 	(
 		Vector4 //iBase
 		(
-			(m_iBase.x * m.m_iBase.x) + (m_iBase.y * m.m_jBase.x) + (m_iBase.z * m.m_kBase.x) + (m_iBase.w * m.m_trans.x),
-			(m_iBase.x * m.m_iBase.y) + (m_iBase.y * m.m_jBase.y) + (m_iBase.z * m.m_kBase.y) + (m_iBase.w * m.m_trans.y),
-			(m_iBase.x * m.m_iBase.z) + (m_iBase.y * m.m_jBase.z) + (m_iBase.z * m.m_kBase.z) + (m_iBase.w * m.m_trans.z),
-			(m_iBase.x * m.m_iBase.w) + (m_iBase.y * m.m_jBase.w) + (m_iBase.z * m.m_kBase.w) + (m_iBase.w * m.m_trans.w)
+			(m_i.x * m.m_i.x) + (m_i.y * m.m_j.x) + (m_i.z * m.m_k.x) + (m_i.w * m.m_t.x),
+			(m_i.x * m.m_i.y) + (m_i.y * m.m_j.y) + (m_i.z * m.m_k.y) + (m_i.w * m.m_t.y),
+			(m_i.x * m.m_i.z) + (m_i.y * m.m_j.z) + (m_i.z * m.m_k.z) + (m_i.w * m.m_t.z),
+			(m_i.x * m.m_i.w) + (m_i.y * m.m_j.w) + (m_i.z * m.m_k.w) + (m_i.w * m.m_t.w)
 		),
 
 		Vector4 //jBase
 		(
-			(m_jBase.x * m.m_iBase.x) + (m_jBase.y * m.m_jBase.x) + (m_jBase.z * m.m_kBase.x) + (m_jBase.w * m.m_trans.x),
-			(m_jBase.x * m.m_iBase.y) + (m_jBase.y * m.m_jBase.y) + (m_jBase.z * m.m_kBase.y) + (m_jBase.w * m.m_trans.y),
-			(m_jBase.x * m.m_iBase.z) + (m_jBase.y * m.m_jBase.z) + (m_jBase.z * m.m_kBase.z) + (m_jBase.w * m.m_trans.z),
-			(m_jBase.x * m.m_iBase.w) + (m_jBase.y * m.m_jBase.w) + (m_jBase.z * m.m_kBase.w) + (m_jBase.w * m.m_trans.w)
+			(m_j.x * m.m_i.x) + (m_j.y * m.m_j.x) + (m_j.z * m.m_k.x) + (m_j.w * m.m_t.x),
+			(m_j.x * m.m_i.y) + (m_j.y * m.m_j.y) + (m_j.z * m.m_k.y) + (m_j.w * m.m_t.y),
+			(m_j.x * m.m_i.z) + (m_j.y * m.m_j.z) + (m_j.z * m.m_k.z) + (m_j.w * m.m_t.z),
+			(m_j.x * m.m_i.w) + (m_j.y * m.m_j.w) + (m_j.z * m.m_k.w) + (m_j.w * m.m_t.w)
 		),
 
 		Vector4 //kBase
 		(
-			(m_kBase.x * m.m_iBase.x) + (m_kBase.y * m.m_jBase.x) + (m_kBase.z * m.m_kBase.x) + (m_kBase.w * m.m_trans.x),
-			(m_kBase.x * m.m_iBase.y) + (m_kBase.y * m.m_jBase.y) + (m_kBase.z * m.m_kBase.y) + (m_kBase.w * m.m_trans.y),
-			(m_kBase.x * m.m_iBase.z) + (m_kBase.y * m.m_jBase.z) + (m_kBase.z * m.m_kBase.z) + (m_kBase.w * m.m_trans.z),
-			(m_kBase.x * m.m_iBase.w) + (m_kBase.y * m.m_jBase.w) + (m_kBase.z * m.m_kBase.w) + (m_kBase.w * m.m_trans.w)
+			(m_k.x * m.m_i.x) + (m_k.y * m.m_j.x) + (m_k.z * m.m_k.x) + (m_k.w * m.m_t.x),
+			(m_k.x * m.m_i.y) + (m_k.y * m.m_j.y) + (m_k.z * m.m_k.y) + (m_k.w * m.m_t.y),
+			(m_k.x * m.m_i.z) + (m_k.y * m.m_j.z) + (m_k.z * m.m_k.z) + (m_k.w * m.m_t.z),
+			(m_k.x * m.m_i.w) + (m_k.y * m.m_j.w) + (m_k.z * m.m_k.w) + (m_k.w * m.m_t.w)
 		),
 
 		Vector4 //translation
 		(
-			(m_trans.x * m.m_iBase.x) + (m_trans.y * m.m_jBase.x) + (m_trans.z * m.m_kBase.x) + (m_trans.w * m.m_trans.x),
-			(m_trans.x * m.m_iBase.y) + (m_trans.y * m.m_jBase.y) + (m_trans.z * m.m_kBase.y) + (m_trans.w * m.m_trans.y),
-			(m_trans.x * m.m_iBase.z) + (m_trans.y * m.m_jBase.z) + (m_trans.z * m.m_kBase.z) + (m_trans.w * m.m_trans.z),
-			(m_trans.x * m.m_iBase.w) + (m_trans.y * m.m_jBase.w) + (m_trans.z * m.m_kBase.w) + (m_trans.w * m.m_trans.w)
+			(m_t.x * m.m_i.x) + (m_t.y * m.m_j.x) + (m_t.z * m.m_k.x) + (m_t.w * m.m_t.x),
+			(m_t.x * m.m_i.y) + (m_t.y * m.m_j.y) + (m_t.z * m.m_k.y) + (m_t.w * m.m_t.y),
+			(m_t.x * m.m_i.z) + (m_t.y * m.m_j.z) + (m_t.z * m.m_k.z) + (m_t.w * m.m_t.z),
+			(m_t.x * m.m_i.w) + (m_t.y * m.m_j.w) + (m_t.z * m.m_k.w) + (m_t.w * m.m_t.w)
 		)
 	);
 }
@@ -183,8 +183,8 @@ Vector3 Matrix4x4::operator * (const Vector3& v)
 {
 	return Vector3
 	(
-		(m_iBase.x * v.x) + (m_iBase.y * v.y) + (m_iBase.z * v.z) + (m_iBase.w * 1),
-		(m_jBase.x * v.x) + (m_jBase.y * v.y) + (m_jBase.z * v.z) + (m_jBase.w * 1),
-		(m_kBase.x * v.x) + (m_kBase.y * v.y) + (m_kBase.z * v.z) + (m_kBase.w * 1)
+		(m_i.x * v.x) + (m_i.y * v.y) + (m_i.z * v.z) + (m_i.w * 1),
+		(m_j.x * v.x) + (m_j.y * v.y) + (m_j.z * v.z) + (m_j.w * 1),
+		(m_k.x * v.x) + (m_k.y * v.y) + (m_k.z * v.z) + (m_k.w * 1)
 	);
 }

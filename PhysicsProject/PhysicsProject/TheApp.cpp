@@ -79,6 +79,8 @@ void TheApp::ProcessInput()
 			m_camera->MoveDirection(UP);
 		if (m_inputSystem->IsKeyDown(VK_SPACE))
 			m_camera->MoveDirection(DOWN);
+		if (m_inputSystem->WasKeyReleased('G'))
+			m_camera->m_position = Vector3(0.0f, 0.0f, -3.0f);
 	}
 
 }
