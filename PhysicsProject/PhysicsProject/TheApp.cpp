@@ -3,6 +3,10 @@
 //================================================================
 #include "TheApp.hpp"
 
+namespace 
+{
+	bool strafeEnabled = true;
+}
 
 //================================================================
 TheApp::TheApp()
@@ -54,7 +58,7 @@ void TheApp::Shutdown()
 
 }
 
-#include "Utilities.hpp"
+
 //================================================================
 void TheApp::ProcessInput()
 {
@@ -64,23 +68,43 @@ void TheApp::ProcessInput()
 	if (m_inputSystem->IsKeyDown(VK_ESCAPE))
 		m_inputSystem->SetSystemQuit();
 
+	if (m_inputSystem->WasKeyReleased('C'))
+		strafeEnabled = !strafeEnabled;
+
 	if (m_camera)
 	{
-		//m_camera->UpdateMouseMovement();
-		if (m_inputSystem->IsKeyDown('W'))
-			m_camera->MoveDirection(FORWARD);
-		if (m_inputSystem->IsKeyDown('A'))
-			m_camera->MoveDirection(LEFT);
-		if (m_inputSystem->IsKeyDown('S'))
-			m_camera->MoveDirection(BACKWARD);
-		if (m_inputSystem->IsKeyDown('D'))
-			m_camera->MoveDirection(RIGHT);
-		if (m_inputSystem->IsKeyDown('E'))
-			m_camera->MoveDirection(UP);
-		if (m_inputSystem->IsKeyDown(VK_SPACE))
-			m_camera->MoveDirection(DOWN);
-		if (m_inputSystem->WasKeyReleased('G'))
-			m_camera->m_position = Vector3(0.0f, 0.0f, -3.0f);
+		m_camera->RotateCamera();
+		if (strafeEnabled)
+		{			//Strafe
+			if (m_inputSystem->IsKeyDown('W'))
+				m_camera->StrafeCameraDirection(FORWARD);
+			if (m_inputSystem->IsKeyDown('A'))
+				m_camera->StrafeCameraDirection(LEFT);
+			if (m_inputSystem->IsKeyDown('S'))
+				m_camera->StrafeCameraDirection(BACKWARD);
+			if (m_inputSystem->IsKeyDown('D'))
+				m_camera->StrafeCameraDirection(RIGHT);
+			if (m_inputSystem->IsKeyDown('E'))
+				m_camera->StrafeCameraDirection(UP);
+			if (m_inputSystem->IsKeyDown(VK_SPACE))
+				m_camera->StrafeCameraDirection(DOWN);
+		}
+		else
+		{
+			//Forward Vector 
+			if (m_inputSystem->IsKeyDown('W'))
+				m_camera->MoveForwardCameraDirection(FORWARD);
+			if (m_inputSystem->IsKeyDown('A'))
+				m_camera->MoveForwardCameraDirection(LEFT);
+			if (m_inputSystem->IsKeyDown('S'))
+				m_camera->MoveForwardCameraDirection(BACKWARD);
+			if (m_inputSystem->IsKeyDown('D'))
+				m_camera->MoveForwardCameraDirection(RIGHT);
+			if (m_inputSystem->IsKeyDown('E'))
+				m_camera->MoveForwardCameraDirection(UP);
+			if (m_inputSystem->IsKeyDown(VK_SPACE))
+				m_camera->MoveForwardCameraDirection(DOWN);
+		}
 	}
 
 }

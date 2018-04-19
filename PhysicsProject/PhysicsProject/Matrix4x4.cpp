@@ -39,19 +39,22 @@ void Matrix4x4::Rotate(RotateAxis axis, float degrees)
 	Matrix4x4 rotator;
 
 	if (axis == XAXIS)
-		rotator = GetXRotator(degrees);
+		/*rotator = GetXRotator(degrees);*/ RotateDegreesAboutX(degrees);
 	if (axis == YAXIS)
-		rotator = GetYRotator(degrees);
+			/*rotator = GetYRotator(degrees);*/ RotateDegreesAboutY(degrees);
 	if (axis == ZAXIS)
-		rotator = GetZRotator(degrees);
-
+		/*rotator = GetZRotator(degrees);*/ RotateDegreesAboutZ(degrees);
+		
 	*this = rotator * (*this);
 }
 void Matrix4x4::Translate(const Vector3& v)
 {
-	m_t.x = v.x;
-	m_t.y = v.y;
-	m_t.z = v.z;
+	Matrix4x4 translation;
+	translation.m_t.x = v.x;
+	translation.m_t.y = v.y;
+	translation.m_t.z = v.z;
+
+	*this = translation * *this;
 }
 void Matrix4x4::Transpose()
 {
@@ -187,4 +190,49 @@ Vector3 Matrix4x4::operator * (const Vector3& v)
 		(m_j.x * v.x) + (m_j.y * v.y) + (m_j.z * v.z) + (m_j.w * 1),
 		(m_k.x * v.x) + (m_k.y * v.y) + (m_k.z * v.z) + (m_k.w * 1)
 	);
+}
+
+
+
+//================================================================
+void Matrix4x4::RotateDegreesAboutX(float degrees)
+{
+	Matrix4x4 newXRotation;
+
+	float radians = degrees * DEG2RAD;
+	float cosine = cos(radians);
+	float sine = sin(radians);
+
+	newXRotation.m_j.y = cosine;
+	newXRotation.m_j.z = sine;
+	newXRotation.m_k.y = -sine;
+	newXRotation.m_k.z = cosine;
+
+	*this = newXRotation * (*this);
+}
+void Matrix4x4::RotateDegreesAboutY(float degrees)
+{
+	Matrix4x4 newYRotation;
+
+	float radians = degrees * DEG2RAD;
+	newYRotation.m_i.x = cos(radians);
+	newYRotation.m_i.z = -sin(radians);
+	newYRotation.m_k.x = sin(radians);
+	newYRotation.m_k.z = cos(radians);
+
+	*this = newYRotation * (*this);
+}
+void Matrix4x4::RotateDegreesAboutZ(float degrees)
+{
+	Matrix4x4 newZRotation;
+	float radians = degrees * DEG2RAD;
+	float cosine = cos(radians);
+	float sine = sin(radians);
+
+	newZRotation.m_i.x = cosine;
+	newZRotation.m_i.y = sine;
+	newZRotation.m_j.x = -sine;
+	newZRotation.m_j.y = cosine;
+
+	*this = newZRotation * (*this);
 }

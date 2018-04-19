@@ -108,7 +108,7 @@ const Vector3 Vector3::operator * (const Vector3& s)
 {
 	return Vector3(x * s.x, y * s.y, z * s.z);
 }
-void Vector3::operator=(const Vector3& v)
+void Vector3::operator = (const Vector3& v)
 {
 	x = v.x;
 	y = v.y;
@@ -116,21 +116,21 @@ void Vector3::operator=(const Vector3& v)
 }
 void Vector3::operator += (const Vector3& v)
 {
-	x += v.x;
-	y += v.y;
-	z += v.z;
+	x = x + v.x;
+	y = y + v.y;
+	z = z + v.z;
 }
 void Vector3::operator -= (const Vector3& v)
 {
-	x -= v.x;
-	y -= v.y;
-	z -= v.z;
+	x = x - v.x;
+	y = y - v.y;
+	z = z - v.z;
 }
 void Vector3::operator *= (const float s)
 {
-	x *= s;
-	y *= s;
-	z *= s;
+	x = x * s;
+	y = y * s;
+	z = z * s;
 }
 
 

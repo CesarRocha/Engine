@@ -23,6 +23,8 @@ public:
 	void	Render(GLSLRenderer* renderer);
 
 private:
+
+
 };
 
 

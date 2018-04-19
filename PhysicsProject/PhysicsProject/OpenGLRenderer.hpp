@@ -14,6 +14,7 @@
 #include "RGBA.hpp"
 #include "vert_t.hpp"
 #include "Texture.hpp"
+#include "Camera3D.hpp"
 
 
 //================================================================
@@ -44,9 +45,10 @@ public:
 
 
 	//Camera
-	static Matrix4x4 CreateLookAtMatrix(Vector3& r, Vector3& u, Vector3& f, Vector3& p);
-	static Matrix4x4 CreateProjectionMatrix(float fov, float aspect, float zNear, float zFar);
+	static Matrix4x4 CreateProjectionMatrix();
+	static Matrix4x4 GetProjectionMatrix() { return m_projectionMatrix; }
 	static Matrix4x4 CreateOrthoMatrix(float screenWidth, float screenHeight, float zFar, float zNear);
+	static Matrix4x4 GetViewMatrix();
 
 private:
 	HWND	m_windowHandle;
@@ -54,6 +56,7 @@ private:
 	HGLRC   m_renderingContext;
 	float   m_displayWidth;
 	float   m_displayHeight;
+	static	Matrix4x4 m_projectionMatrix;
 };
 
 

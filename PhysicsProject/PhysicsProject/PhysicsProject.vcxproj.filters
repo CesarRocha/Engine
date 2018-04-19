@@ -30,6 +30,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{f7dae26d-0534-4c29-95dd-387e974b2038}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Debug">
+      <UniqueIdentifier>{e39d78db-1423-4286-b230-c7c5ba615e70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main_Win32.cpp">
@@ -179,6 +182,12 @@
   <ItemGroup>
     <None Include="frag.fs">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="debug.fs">
+      <Filter>Shaders\Debug</Filter>
+    </None>
+    <None Include="debug.gs">
+      <Filter>Shaders\Debug</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

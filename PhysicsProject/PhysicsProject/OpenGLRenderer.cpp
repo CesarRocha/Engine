@@ -4,6 +4,11 @@
 #include "OpenGLRenderer.hpp"
 #include "MathUtilities.hpp"
 
+#define FIELD_OF_VIEW  60.0f
+#define ASPEC_RATIO (16.0f / 9.0f)
+#define ZNEAR 0.1f
+#define ZFAR 15000.0f
+
 
 //================================================================
 OpenGLRenderer::OpenGLRenderer()
@@ -47,7 +52,7 @@ void OpenGLRenderer::Startup(HWND windowHandle)
 		m_displayHeight = dimensions[3];
 
 		glViewport(0, 0, m_displayWidth, m_displayHeight);
-		
+		m_projectionMatrix = CreateProjectionMatrix();
 	}
 }
 void OpenGLRenderer::Shutdown()
@@ -58,7 +63,7 @@ void OpenGLRenderer::Shutdown()
 //================================================================
 void OpenGLRenderer::PreRender()
 {
-	glClearColor(.2f, .3f, .3f, 1.f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_DEPTH_TEST);
@@ -144,24 +149,17 @@ void OpenGLRenderer::DrawLineLoop(vert_t v[], RGBA color)
 
 
 //================================================================
-Matrix4x4 OpenGLRenderer::CreateLookAtMatrix(Vector3& r, Vector3& u, Vector3& f, Vector3& p)
+Matrix4x4 OpenGLRenderer::CreateProjectionMatrix()
 {
+	float f = 1.0f / tan(.5f * ToRadians(FIELD_OF_VIEW));
+	float s = 1.0f / (ZNEAR - ZFAR);
+	float zDepth = ZNEAR - ZFAR;
 	return Matrix4x4
 	(
-		Vector4(r.x, r.y, r.z, 0.0f), Vector4(u.z, u.y, u.z, 0.0f), Vector4(f.x, f.y, f.z, 0.0f), Vector4(-p.x, -p.y, -p.z, 1.0f)
-	);
-}
-Matrix4x4 OpenGLRenderer::CreateProjectionMatrix(float fov, float aspect, float zNear, float zFar)
-{
-	float f = 1.0f / tan(.5f * ToRadians(fov));
-	float s = 1.0f / (zNear - zFar);
-	float zDepth = zNear - zFar;
-	return Matrix4x4
-	(
-		Vector4(f / aspect, 0,                       0,  0),
-		Vector4(         0, f,                       0,  0),
-		Vector4(         0, 0, (zFar + zNear) / zDepth, -1),
-		Vector4(         0, 0, (2*zFar*zNear) / zDepth,  0)
+		Vector4(f / ASPEC_RATIO, 0,							 0,  0),
+		Vector4(				 0, f,                       0,  0),
+		Vector4(				 0, 0, (ZFAR + ZNEAR) / zDepth, -1),
+		Vector4(				 0, 0, (2*ZFAR*ZNEAR) / zDepth,  0)
 	);
 }
 Matrix4x4 OpenGLRenderer::CreateOrthoMatrix(float screenWidth, float screenHeight, float zFar, float zNear)
@@ -174,5 +172,22 @@ Matrix4x4 OpenGLRenderer::CreateOrthoMatrix(float screenWidth, float screenHeigh
 		Vector4(-1.0f, -1.0f, 0.0f, 1.0f)
 	);
 }
+Matrix4x4 OpenGLRenderer::GetViewMatrix()
+{
+	Camera3D& camera = *Camera3D::g_masterCamera;
+	Matrix4x4 view;
 
+	view.RotateDegreesAboutX(-90.0f);
+	view.RotateDegreesAboutZ(90.0f);
+
+	view.RotateDegreesAboutX(-camera.m_orientation.m_rollX);
+	view.RotateDegreesAboutY(-camera.m_orientation.m_pitchY);
+	view.RotateDegreesAboutZ(-camera.m_orientation.m_yawZ);
+	view.Translate(Vector3(-camera.m_position.x, -camera.m_position.y, -camera.m_position.z));
+	return view;
+}
+
+
+//================================================================
+Matrix4x4 OpenGLRenderer::m_projectionMatrix;
 

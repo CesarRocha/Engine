@@ -7,6 +7,7 @@
 #include "Matrix4x4.hpp"
 
 
+#include "Camera3D.hpp"
 Texture* texture1 = nullptr;
 Texture* texture2 = nullptr;
 //================================================================
@@ -23,21 +24,19 @@ Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath)
 
 
 	int program = glCreateProgram();
-	Shader::LinkShader(program, vertShader, fragShader);
-	bool linkResult = Shader::QueryProgramStatus(program, GL_LINK_STATUS);
+	m_programID = program;
 
-	if (linkResult)
-		m_programID = program;
+	bool linkResult = false;
+	Shader::LinkShader(program, vertShader);
+	linkResult = Shader::QueryProgramStatus(program, GL_LINK_STATUS);
+	Shader::LinkShader(program, fragShader);
+	linkResult = Shader::QueryProgramStatus(program, GL_LINK_STATUS);
+
+	m_drawMode = TRIANGLES;
 
 	glDeleteShader(vertShader);
 	glDeleteShader(fragShader);
-}
-Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath, vert_t v[], int vertCount)
-	:Shader(vertFilePath, fragmentFilePath)
-{
-	SetVertData(v, vertCount);
-	//texture1 = Texture::CreateOrGetTexture("dat/Pebbles_003_COLOR.jpg");
-	//texture2 = Texture::CreateOrGetTexture("dat/Pebbles_003_NRM.jpg");
+
 	texture1 = Texture::CreateOrGetTexture("dat/test.png");
 	texture2 = Texture::CreateOrGetTexture("dat/brick_normal.jpg");
 }
@@ -45,19 +44,9 @@ Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath, vert_
 	: Shader(vertFilePath, fragmentFilePath)
 {
 	SetVertIndexData(v, vertCount, i, indexCount);
-	texture1 = Texture::CreateOrGetTexture("dat/test.png");
-	//texture2 = Texture::CreateOrGetTexture("dat/Pebbles_003_NRM.jpg");
-	//texture1 = Texture::CreateOrGetTexture("dat/happy.jpg");
-	texture2 = Texture::CreateOrGetTexture("dat/brick_normal.jpg");
-}
-Shader::~Shader()
-{
-	glDeleteVertexArrays(1, &m_VAO);
-	glDeleteProgram(m_programID);
 }
 
-#include "Camera3D.hpp"
-float dt = 0.0f;
+
 //================================================================
 void Shader::Render()
 {
@@ -74,33 +63,27 @@ void Shader::Render()
 	Matrix4x4 view;
 	Matrix4x4 proj;
 
- 	Vector3 pos			= Camera3D::g_masterCamera->m_position;
- 	Vector3 forward		= Camera3D::g_masterCamera->GetForwardVector();
- 	Vector3 up			= Camera3D::g_masterCamera->GetUpVector();
- 	Vector3 right		= Camera3D::g_masterCamera->GetLeftVector();
-
-	//Working for example
-	//view.Translate(Vector3(.0f, .0f, -3.0f));
-	//proj = OpenGLRenderer::CreateProjectionMatrix(60.0f, (16.0f / 9.0f), 0.1f, 15000.0f);
-	//model.Rotate(XAXIS, -45.0f);
-
-	//forward = Vector3(0.0f, 0.0f, -1.0f);
-	//right = Vector3(1.0f, 0.0f, 0.0f);
-	//up = Vector3(0.0f, 1.0f, 0.0f);
-
-	view = OpenGLRenderer::CreateLookAtMatrix(right, up, forward, pos); //Skewed
-	proj = OpenGLRenderer::CreateProjectionMatrix(60.0f, (16.0f / 9.0f), 0.1f, 15000.0f);
 	
+	view = OpenGLRenderer::GetViewMatrix();
+	proj = OpenGLRenderer::GetProjectionMatrix();
+
 	bindResult = BindUniformMat4("gModel", model);
 	bindResult = BindUniformMat4("gView",  view);
 	bindResult = BindUniformMat4("gProj",  proj);
 
+	bindResult = BindUniformVec4("gAmbientColor", Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
-	glBindVertexArray(m_VAO);		
+	glBindVertexArray(m_VAO);	
+
 	if (m_drawType == ELEMENT)
 		glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, 0);
 	else
-		glDrawArrays(GL_TRIANGLES, 0, m_count);
+	{
+		if (m_drawMode == TRIANGLES)
+			glDrawArrays(GL_TRIANGLES, 0, m_count);
+		if (m_drawMode == POINT_S)
+			glDrawArrays(GL_POINTS, 0, m_count);
+	}
 }
 
 
@@ -111,18 +94,10 @@ void Shader::CompileShader(GLuint shader, std::string filePath)
 	glShaderSource(shader, 1, &source, NULL);
 	glCompileShader(shader);
 }
-void Shader::LinkShader(GLuint program, GLuint vert, GLuint frag)
+void Shader::LinkShader(GLuint program, GLuint shader)
 {
-	glAttachShader(program, vert);
-	glAttachShader(program, frag);
+	glAttachShader(program, shader);
 	glLinkProgram(program);
-}
-void Shader::BeginAttributeBindingAll()
-{
-	bool bindResult = false;
-	bindResult = Shader::BindProgramAttribute(m_programID, "inPos", 3, GL_FLOAT, GL_FALSE, sizeof(vert_t), offsetof(vert_t, m_position));
-	bindResult = Shader::BindProgramAttribute(m_programID, "inUV", 2, GL_FLOAT, GL_FALSE, sizeof(vert_t), offsetof(vert_t, m_uv));
-	bindResult = Shader::BindProgramAttribute(m_programID, "inColor", 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(vert_t), offsetof(vert_t, m_color));
 }
 bool Shader::BindProgramAttribute(GLuint programID, const char* inName, GLint count, GLenum attributeType, GLboolean normalize, GLsizei stride, GLsizei offset)
 {
@@ -156,28 +131,6 @@ bool Shader::QueryProgramStatus(GLuint toCheck, GLenum queryType)
 
 
 //================================================================
-void Shader::SetVertData(vert_t v[], unsigned int vertCount)
-{
-	GLuint VBO;
-	GLuint VAO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-
-	int bufferSize = vertCount * sizeof(vert_t);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, bufferSize, v, GL_STATIC_DRAW);
-
-	BeginAttributeBindingAll();
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	m_VAO = VAO;
-	m_drawType = ARRAY;
-	m_count = vertCount;
-}
 void Shader::SetVertIndexData(vert_t v[], unsigned int vertCount, unsigned int i[], unsigned int indexCount)
 {
 	GLuint VBO;
@@ -193,19 +146,41 @@ void Shader::SetVertIndexData(vert_t v[], unsigned int vertCount, unsigned int i
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, arrayBufferSize, v, GL_STATIC_DRAW);
 
-	int elemBufferSize = indexCount * sizeof(unsigned int);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elemBufferSize, i, GL_STATIC_DRAW);
+	if (i != NULL)
+	{
+		int elemBufferSize = indexCount * sizeof(unsigned int);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, elemBufferSize, i, GL_STATIC_DRAW);
+		m_drawType = ELEMENT;
+		m_count = indexCount;
+	}
+	else
+	{
+		m_drawType = ARRAY;
+		m_count = vertCount;
+	}
+	m_VAO = VAO;
+	m_VBO = VBO;
 
-	BeginAttributeBindingAll();
+
+	bool bindResult = false;
+	bindResult = Shader::BindProgramAttribute(m_programID, "inPos", 3, GL_FLOAT, GL_FALSE, sizeof(vert_t), offsetof(vert_t, m_position));
+	bindResult = Shader::BindProgramAttribute(m_programID, "inUV", 2, GL_FLOAT, GL_FALSE, sizeof(vert_t), offsetof(vert_t, m_uv));
+	bindResult = Shader::BindProgramAttribute(m_programID, "inColor", 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(vert_t), offsetof(vert_t, m_color));
+
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 	glBindVertexArray(0);
+}
+void Shader::AddGeometryShader(const GLchar* geoFilePath, EShaderDrawMode mode)
+{
+	GLuint geoShader = glCreateShader(GL_GEOMETRY_SHADER);
+	CompileShader(geoShader, geoFilePath);
+	bool geoResult = QueryProgramStatus(geoShader, GL_COMPILE_STATUS);
+	Shader::LinkShader(m_programID, geoShader);
+	bool linkResult = Shader::QueryProgramStatus(m_programID, GL_LINK_STATUS);
 
-	m_VAO = VAO;
-	m_drawType = ELEMENT;
-	m_count = indexCount;
+	m_drawMode = mode;
 }
 
 
@@ -264,4 +239,17 @@ bool Shader::BindUniformTexture(const char* uniformName, const unsigned int& tex
 
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	return true;
+}
+
+
+//================================================================
+void Shader::CreateLightSource()
+{
+	unsigned int lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+
+	Shader::BindProgramAttribute(m_programID, "inColor", 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(vert_t), offsetof(vert_t, m_color));
 }

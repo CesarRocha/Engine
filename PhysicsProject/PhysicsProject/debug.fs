@@ -14,6 +14,6 @@ out vec4 pixelColor;
 
 void main()
 {
-	pixelColor = texture(gDiffuseMap, passUV) * gAmbientColor;
+	pixelColor = passColor;
 }
 

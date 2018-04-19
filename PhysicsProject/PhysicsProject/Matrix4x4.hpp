@@ -38,8 +38,12 @@ struct Matrix4x4
 	static Matrix4x4 GetZRotator(float degrees);
 	static Matrix4x4 GetScalingMatrix(const Vector3& s);
 
-private:
 	Vector4 m_i, m_j, m_k, m_t;
+	void RotateDegreesAboutX(float degrees);
+	void RotateDegreesAboutY(float degrees);
+	void RotateDegreesAboutZ(float degrees);
+private:
+
 };
 
 
