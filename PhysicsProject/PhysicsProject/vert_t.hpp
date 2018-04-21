@@ -13,50 +13,25 @@
 class vert_t
 {
 public:
-	vert_t() 
-	{ 
-		m_position = Vector3::ZERO; 
-	}
+	vert_t();
 	
-	vert_t(Vector3 position) 
-	{ 
-		m_position = position; 
-	}
-	vert_t(Vector3 position, RGBA color)
-	{
-		m_position = position;
-		m_color = color;
-	}	
-	vert_t(Vector3 position, RGBA color, Vector2 uv)
-	{
-		m_position = position;
-		m_color = color;
-		m_uv = uv;
-	}
-
-	vert_t(float x, float y, float z) 
-	{ 
-		m_position.x = x; 
-		m_position.y = y; 
-		m_position.z = z; 
-	}
-	vert_t(float x, float y, float z, RGBA color)
-		:vert_t(x, y, z)
-	{
-		m_color = color;
-	}
-	vert_t(float x, float y, float z, RGBA color, float u, float v)
-		:vert_t(x, y, z, color)
-	{
-		m_uv.x = u;
-		m_uv.y = v;
-	}
-
+	vert_t(Vector3 position);
+	vert_t(Vector3 position, Vector3 normal);
+	vert_t(Vector3 position, Vector2 uv, Vector3 normal);
+	vert_t(Vector3 position, RGBA color);
+	vert_t(Vector3 position, RGBA color, Vector2 uv);
+	
+	void SetPosition(Vector3 position)	{ m_position = position; }
+	void SetColor(RGBA color)			{ m_color = color; }
+	void SetUV(Vector2 uv)				{ m_uv = uv; }
+	void SetNormal(Vector3 normal)		{ m_normal = normal; }
 
 public:
+
 	Vector3 m_position;
-	Vector2 m_uv;
 	RGBA	m_color;
+	Vector2 m_uv;
+	Vector3 m_normal;
 	
 };
 

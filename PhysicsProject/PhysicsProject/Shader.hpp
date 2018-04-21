@@ -22,23 +22,24 @@ public:
 
 	void Render();
 	void SetVertIndexData(vert_t v[], unsigned int vertCount, unsigned int i[] = NULL, unsigned int indexCount = 0);
-	void AddGeometryShader(const GLchar* geoFilePath, EShaderDrawMode mode);
-	void CreateLightSource();
 
 
 	void CompileShader(GLuint shader, std::string filePath);
 	void LinkShader(GLuint program, GLuint shader);
 	bool QueryProgramStatus(GLuint toCheck, GLenum queryType);
+	void AddGeometryShader(const GLchar* geoFilePath, EShaderDrawMode mode);
 	
 
 	bool BindProgramAttribute(GLuint programID, const char* inName, GLint count, GLenum attributeType, GLboolean normalize, GLsizei stride, GLsizei offset);
 	bool BindUniformVec3(const char* uniformName, const Vector3 val);
 	bool BindUniformVec4(const char* uniformName, const Vector4 val);
 	bool BindUniformInt(const char* uniformName, const int& val);
+	bool BindUniformFloat(const char* uniformName, const float& val);
 	bool BindUniformMat4(const char* uniformName, const Matrix4x4& val);
 	bool BindUniformTexture(const char* uniformName, const unsigned int& textureID);
 
 
+	void AddModelMatrix(const Matrix4x4& m) { m_modelMatrix = m; }
 public:
 	GLuint		m_programID;
 	GLuint		m_VAO;
@@ -46,6 +47,7 @@ public:
 	int			m_count;
 	EShaderDrawType	m_drawType;
 	EShaderDrawMode	m_drawMode;
+	Matrix4x4 m_modelMatrix;
 };
 
 

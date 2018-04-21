@@ -5,13 +5,16 @@
 #include "MathUtilities.hpp"
 #include "Utilities.hpp"
 #include "Matrix4x4.hpp"
-
-
 #include "Camera3D.hpp"
+
+
 Texture* texture1 = nullptr;
 Texture* texture2 = nullptr;
+
+
 //================================================================
 Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath)
+	: m_drawMode(TRIANGLES)
 {
 	GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
 	CompileShader(vertShader, vertFilePath);
@@ -26,18 +29,18 @@ Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath)
 	int program = glCreateProgram();
 	m_programID = program;
 
+
 	bool linkResult = false;
 	Shader::LinkShader(program, vertShader);
 	linkResult = Shader::QueryProgramStatus(program, GL_LINK_STATUS);
 	Shader::LinkShader(program, fragShader);
 	linkResult = Shader::QueryProgramStatus(program, GL_LINK_STATUS);
 
-	m_drawMode = TRIANGLES;
-
 	glDeleteShader(vertShader);
 	glDeleteShader(fragShader);
 
-	texture1 = Texture::CreateOrGetTexture("dat/test.png");
+	//texture1 = Texture::CreateOrGetTexture("dat/test.png");
+	texture1 = Texture::CreateOrGetTexture("dat/brick_diffuse.jpg");
 	texture2 = Texture::CreateOrGetTexture("dat/brick_normal.jpg");
 }
 Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath, vert_t v[], int vertCount, unsigned int i[], unsigned int indexCount)
@@ -51,32 +54,36 @@ Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath, vert_
 void Shader::Render()
 {
 	glUseProgram(m_programID);
+	
 
 	bool bindResult = false;
 	unsigned int diffuseID = texture1->GetTextureID();
 	unsigned int normalID = texture2->GetTextureID();
-	
+
 	bindResult = BindUniformTexture("gDiffuseMap", diffuseID);
 	bindResult = BindUniformTexture("gNormalMap", normalID);
-	
-	Matrix4x4 model;
-	Matrix4x4 view;
-	Matrix4x4 proj;
 
-	
-	view = OpenGLRenderer::GetViewMatrix();
-	proj = OpenGLRenderer::GetProjectionMatrix();
+	Matrix4x4 model = m_modelMatrix;
+	Matrix4x4 view = OpenGLRenderer::GetViewMatrix();
+	Matrix4x4 proj = OpenGLRenderer::GetProjectionMatrix();
 
 	bindResult = BindUniformMat4("gModel", model);
-	bindResult = BindUniformMat4("gView",  view);
-	bindResult = BindUniformMat4("gProj",  proj);
+	bindResult = BindUniformMat4("gView", view);
+	bindResult = BindUniformMat4("gProj", proj);
 
-	bindResult = BindUniformVec4("gAmbientColor", Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+	bindResult = BindUniformVec3("gCameraPos", Camera3D::g_masterCamera->m_position);
+	bindResult = BindUniformVec3("gLightPos", Vector3(2.0f, 2.0f, 2.0f)); //TEMP
+	bindResult = BindUniformVec4("gLightColor", Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+	bindResult = BindUniformVec4("gAmbientColor", Vector4(0.1f, 0.1f, 0.1f, 1.0f));
+	bindResult = BindUniformInt("gSpecShineStrength", 256);
+	
 
-	glBindVertexArray(m_VAO);	
 
+	glBindVertexArray(m_VAO);
 	if (m_drawType == ELEMENT)
+	{
 		glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, 0);
+	}
 	else
 	{
 		if (m_drawMode == TRIANGLES)
@@ -133,44 +140,45 @@ bool Shader::QueryProgramStatus(GLuint toCheck, GLenum queryType)
 //================================================================
 void Shader::SetVertIndexData(vert_t v[], unsigned int vertCount, unsigned int i[], unsigned int indexCount)
 {
+	//Create buffer
 	GLuint VBO;
-	GLuint VAO;
-	GLuint EBO;
-	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO);
-
 	int arrayBufferSize = vertCount * sizeof(vert_t);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, arrayBufferSize, v, GL_STATIC_DRAW);
+	m_VBO = VBO;
 
+
+	//Bind object
+	GLuint VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	m_VAO = VAO;
+
+
+	//Set shader draw info
+	m_drawType = ARRAY;
+	m_count = vertCount;
+
+
+	//If indexed, create EBO
 	if (i != NULL)
 	{
+		GLuint EBO;
+		glGenBuffers(1, &EBO);
 		int elemBufferSize = indexCount * sizeof(unsigned int);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, elemBufferSize, i, GL_STATIC_DRAW);
 		m_drawType = ELEMENT;
 		m_count = indexCount;
 	}
-	else
-	{
-		m_drawType = ARRAY;
-		m_count = vertCount;
-	}
-	m_VAO = VAO;
-	m_VBO = VBO;
 
-
+	//Bind data
 	bool bindResult = false;
 	bindResult = Shader::BindProgramAttribute(m_programID, "inPos", 3, GL_FLOAT, GL_FALSE, sizeof(vert_t), offsetof(vert_t, m_position));
 	bindResult = Shader::BindProgramAttribute(m_programID, "inUV", 2, GL_FLOAT, GL_FALSE, sizeof(vert_t), offsetof(vert_t, m_uv));
 	bindResult = Shader::BindProgramAttribute(m_programID, "inColor", 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(vert_t), offsetof(vert_t, m_color));
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	bindResult = Shader::BindProgramAttribute(m_programID, "inNormal", 3, GL_FLOAT, GL_TRUE, sizeof(vert_t), offsetof(vert_t, m_normal));
 }
 void Shader::AddGeometryShader(const GLchar* geoFilePath, EShaderDrawMode mode)
 {
@@ -212,6 +220,15 @@ bool Shader::BindUniformInt(const char* uniformName, const int& val)
 	glUniform1iv(loc, 1, &val);
 	return true;
 }
+bool Shader::BindUniformFloat(const char* uniformName, const float& val)
+{
+	GLint loc = glGetUniformLocation(m_programID, uniformName);
+	if (loc < 0)
+		return false;
+
+	glUniform1fv(loc, 1, &val);
+	return true;
+}
 bool Shader::BindUniformMat4(const char* uniformName, const Matrix4x4& val)
 {
 	GLint loc = glGetUniformLocation(m_programID, uniformName);
@@ -242,14 +259,4 @@ bool Shader::BindUniformTexture(const char* uniformName, const unsigned int& tex
 }
 
 
-//================================================================
-void Shader::CreateLightSource()
-{
-	unsigned int lightVAO;
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-
-	Shader::BindProgramAttribute(m_programID, "inColor", 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(vert_t), offsetof(vert_t, m_color));
-}

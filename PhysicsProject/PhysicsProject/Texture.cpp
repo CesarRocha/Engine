@@ -17,7 +17,7 @@ Texture::Texture(const std::string& texturePath)
 	int				y;
 	int				numberOfColorComponents;
 
-	stbi_set_flip_vertically_on_load(true);
+	//stbi_set_flip_vertically_on_load(true);
 	unsigned char*	pixelData = stbi_load(texturePath.c_str(), &x, &y, &numberOfColorComponents, 0);
 
 	m_textureDimensions.x = x;

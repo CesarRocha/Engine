@@ -180,18 +180,24 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="frag.fs">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="debug.fs">
       <Filter>Shaders\Debug</Filter>
     </None>
     <None Include="debug.gs">
       <Filter>Shaders\Debug</Filter>
     </None>
+    <None Include="lightSource.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="lightSource.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="ex.fs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="vert.vs">
+    <Text Include="ex.vs">
       <Filter>Shaders</Filter>
     </Text>
   </ItemGroup>

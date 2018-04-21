@@ -22,7 +22,7 @@ HWND CreateAppWindow(HINSTANCE thisAppInstance, int showCommand)
 	windowDescription.hbrBackground;
 	windowDescription.cbSize = sizeof(WNDCLASSEXW);
 	windowDescription.hInstance = thisAppInstance;
-	windowDescription.lpszClassName = TEXT("EnhancedParticleSystem");
+	windowDescription.lpszClassName = TEXT("Engine");
 	windowDescription.lpfnWndProc = GameMessageProcessingFunction;
 	windowDescription.style = CS_HREDRAW | CS_OWNDC | CS_VREDRAW;
 
@@ -50,8 +50,8 @@ HWND CreateAppWindow(HINSTANCE thisAppInstance, int showCommand)
 	
 
 	HWND WindowHandle = CreateWindow(
-		TEXT("EnhancedParticleSystem"),
-		TEXT("EnhancedParticleSystem"),
+		TEXT("Engine"),
+		TEXT("Engine"),
 		borderCase,
 		windowRect.left,
 		windowRect.top,

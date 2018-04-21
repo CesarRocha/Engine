@@ -162,12 +162,14 @@
     <ClInclude Include="World.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="vert.vs" />
+    <Text Include="ex.vs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="debug.fs" />
-    <None Include="frag.fs" />
+    <None Include="ex.fs" />
     <None Include="debug.gs" />
+    <None Include="lightSource.fs" />
+    <None Include="lightSource.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

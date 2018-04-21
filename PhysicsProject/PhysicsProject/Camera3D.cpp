@@ -6,7 +6,7 @@
 #include <Windows.h>
 
 Camera3D* Camera3D::g_masterCamera = nullptr;
-#define SPEED 1.0f
+#define SPEED .06f
 #define SENSITIVITY .04f
 
 
