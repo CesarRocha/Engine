@@ -4,6 +4,7 @@
 #include "OpenGLRenderer.hpp"
 #include "MathUtilities.hpp"
 
+const Vector4 CLEAR_COLOR(0.0f, 0.0f, 0.0f, 1.0f);
 #define FIELD_OF_VIEW  60.0f
 #define ASPEC_RATIO (16.0f / 9.0f)
 #define ZNEAR 0.1f
@@ -63,7 +64,7 @@ void OpenGLRenderer::Shutdown()
 //================================================================
 void OpenGLRenderer::PreRender()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.f);
+	glClearColor(CLEAR_COLOR.x, CLEAR_COLOR.y, CLEAR_COLOR.z, CLEAR_COLOR.w);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_DEPTH_TEST);

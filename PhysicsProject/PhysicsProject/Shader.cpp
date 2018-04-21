@@ -8,9 +8,9 @@
 #include "Camera3D.hpp"
 
 
-Texture* texture1 = nullptr;
-Texture* texture2 = nullptr;
-
+Texture* diffuseMap = nullptr;
+Texture* normalMap = nullptr;
+Texture* specularMap = nullptr;
 
 //================================================================
 Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath)
@@ -40,8 +40,10 @@ Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath)
 	glDeleteShader(fragShader);
 
 	//texture1 = Texture::CreateOrGetTexture("dat/test.png");
-	texture1 = Texture::CreateOrGetTexture("dat/brick_diffuse.jpg");
-	texture2 = Texture::CreateOrGetTexture("dat/brick_normal.jpg");
+	diffuseMap = Texture::CreateOrGetTexture("dat/container_diffuse.png");
+	normalMap = Texture::CreateOrGetTexture("dat/brick_normal.jpg");
+	specularMap = Texture::CreateOrGetTexture("dat/container_specular.png");
+
 }
 Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath, vert_t v[], int vertCount, unsigned int i[], unsigned int indexCount)
 	: Shader(vertFilePath, fragmentFilePath)
@@ -49,7 +51,7 @@ Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath, vert_
 	SetVertIndexData(v, vertCount, i, indexCount);
 }
 
-
+float dt = 0.0f;
 //================================================================
 void Shader::Render()
 {
@@ -57,25 +59,37 @@ void Shader::Render()
 	
 
 	bool bindResult = false;
-	unsigned int diffuseID = texture1->GetTextureID();
-	unsigned int normalID = texture2->GetTextureID();
+	unsigned int diffuseID = diffuseMap->GetTextureID();
+	unsigned int normalID = normalMap->GetTextureID();
+	unsigned int specID = specularMap->GetTextureID();
 
-	bindResult = BindUniformTexture("gDiffuseMap", diffuseID);
-	bindResult = BindUniformTexture("gNormalMap", normalID);
+
 
 	Matrix4x4 model = m_modelMatrix;
 	Matrix4x4 view = OpenGLRenderer::GetViewMatrix();
 	Matrix4x4 proj = OpenGLRenderer::GetProjectionMatrix();
-
-	bindResult = BindUniformMat4("gModel", model);
-	bindResult = BindUniformMat4("gView", view);
-	bindResult = BindUniformMat4("gProj", proj);
-
 	bindResult = BindUniformVec3("gCameraPos", Camera3D::g_masterCamera->m_position);
-	bindResult = BindUniformVec3("gLightPos", Vector3(2.0f, 2.0f, 2.0f)); //TEMP
-	bindResult = BindUniformVec4("gLightColor", Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-	bindResult = BindUniformVec4("gAmbientColor", Vector4(0.1f, 0.1f, 0.1f, 1.0f));
-	bindResult = BindUniformInt("gSpecShineStrength", 256);
+
+	
+	{	//Matrix math
+		bindResult = BindUniformMat4("gModel", model);
+		bindResult = BindUniformMat4("gView", view);
+		bindResult = BindUniformMat4("gProj", proj);
+	}
+
+	{	//Setup Material
+		bindResult = BindUniformTexture("gMaterial.m_diffuseMap", diffuseID, 0);
+		bindResult = BindUniformTexture("gMaterial.m_specularMap", specID, 1);
+		bindResult = BindUniformInt("gMaterial.m_shininess", 32.0f);
+	}
+	
+	{	//Setup Light
+		bindResult = BindUniformVec3("gLight.m_position", Vector3(2.0f, 2.0f, 2.0f));
+		bindResult = BindUniformVec3("gLight.m_ambient",  Vector3(0.1f, 0.1f, 0.1f));
+		bindResult = BindUniformVec3("gLight.m_diffuse",  Vector3(0.5f, 0.5f, 0.5f));
+		bindResult = BindUniformVec3("gLight.m_specular", Vector3(1.0f, 1.0f, 1.0f));
+	}
+
 	
 
 
@@ -248,15 +262,19 @@ bool Shader::BindUniformMat4(const char* uniformName, const Matrix4x4& val)
 	glUniformMatrix4fv(loc, 1, GL_FALSE, (GLfloat*)&val);
 	return true;
 }
-bool Shader::BindUniformTexture(const char* uniformName, const unsigned int& textureID)
+bool Shader::BindUniformTexture(const char* uniformName, const unsigned int& textureID, GLint index)
 {
 	GLint loc = glGetUniformLocation(m_programID, uniformName);
 	if (loc < 0)
 		return false;
 
+	glUniform1iv(loc, 1, (GLint*)&index);
+	glActiveTexture(GL_TEXTURE0 + index);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	return true;
 }
+
+
 
 
 

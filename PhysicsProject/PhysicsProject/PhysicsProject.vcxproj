@@ -137,20 +137,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera3D.hpp" />
+    <ClInclude Include="DirectionalLight.hpp" />
     <ClInclude Include="EulerAngles.hpp" />
     <ClInclude Include="GLSLFunctionLibrary.hpp" />
     <ClInclude Include="GLSLRenderer.hpp" />
     <ClInclude Include="InputSystem.hpp" />
     <ClInclude Include="IntVector2.hpp" />
     <ClInclude Include="Joint.hpp" />
+    <ClInclude Include="LightBase.hpp" />
     <ClInclude Include="MathUtilities.hpp" />
     <ClInclude Include="Matrix2x2.hpp" />
     <ClInclude Include="Matrix4x4.hpp" />
     <ClInclude Include="OpenGLRenderer.hpp" />
+    <ClInclude Include="PointLight.h" />
     <ClInclude Include="RGBA.hpp" />
     <ClInclude Include="RigidBody.hpp" />
     <ClInclude Include="PhysicsEngineSAP.hpp" />
     <ClInclude Include="Shader.hpp" />
+    <ClInclude Include="SpotLight.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.hpp" />
     <ClInclude Include="TheApp.hpp" />

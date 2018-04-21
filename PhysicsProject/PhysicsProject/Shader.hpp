@@ -36,9 +36,11 @@ public:
 	bool BindUniformInt(const char* uniformName, const int& val);
 	bool BindUniformFloat(const char* uniformName, const float& val);
 	bool BindUniformMat4(const char* uniformName, const Matrix4x4& val);
-	bool BindUniformTexture(const char* uniformName, const unsigned int& textureID);
+	void BindUniformTexture(const char* uniformName, const unsigned int& textureID, const unsigned int index);
 
-
+	bool BindUniformTexture(const char* uniformName, const unsigned int& textureID, GLint index);
+	void BindDiffuseMap();
+	void BindSpecularMap();
 	void AddModelMatrix(const Matrix4x4& m) { m_modelMatrix = m; }
 public:
 	GLuint		m_programID;

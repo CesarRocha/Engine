@@ -103,7 +103,6 @@ namespace
 	};
 	float cm[16] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 };
 	Shader* primaryShader = nullptr;
-	Shader* lightShader = nullptr;
 	Shader* debugShader = nullptr;
 
 	vert_t origin[] =
@@ -124,16 +123,15 @@ World::World(Vector2 displaySize)
 
 }
 
-
+#include "DirectionalLight.hpp"
 //================================================================
 void World::StartUp()
 {
-	//primaryShader = new Shader("vert.vs", "frag.fs", plane, 4, i, 6);
 	primaryShader = new Shader("ex.vs", "ex.fs", lightCube, 36);
-	//lightShader = new Shader("lightSource.vs", "lightSource.fs", cube, 36);
 
 	debugShader = new Shader("debug.vs", "debug.fs", origin, 1);
 	debugShader->AddGeometryShader("debug.gs", POINT_S);
+	DirectionalLight l;
 }
 
 
@@ -145,10 +143,5 @@ void World::Update(float deltaTime)
 void World::Render(GLSLRenderer* renderer)
 {
 	primaryShader->Render();
-	//Matrix4x4 m;
-	//m.Translate(Vector3(2.0f, 2.0f, 0.0f));
-	//m.Scale(0.5f);
-	//lightShader->AddModelMatrix(m);
-	//lightShader->Render();
 	debugShader->Render();
 }
