@@ -181,17 +181,26 @@
     <ClInclude Include="stb_image.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="LightBase.hpp">
-      <Filter>Header Files\Rendering\Lights</Filter>
-    </ClInclude>
     <ClInclude Include="DirectionalLight.hpp">
       <Filter>Header Files\Rendering\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="PointLight.h">
+    <ClInclude Include="LightSource.hpp">
       <Filter>Header Files\Rendering\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="SpotLight.h">
+    <ClInclude Include="PointLight.hpp">
       <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="SpotLight.hpp">
+      <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseLight.hpp">
+      <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingSystem.hpp">
+      <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.hpp">
+      <Filter>Header Files\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

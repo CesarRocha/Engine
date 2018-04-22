@@ -2,6 +2,7 @@
 //              TheApp.cpp                                
 //================================================================
 #include "TheApp.hpp"
+#include "LightingSystem.hpp"
 
 namespace 
 {
@@ -36,6 +37,8 @@ void TheApp::Startup(void* windowHandle)
 	
 	//New Camera
 	m_camera = new Camera3D();
+
+	LightingSystem::InitalizeLightingSystem();
 
 	//New World
 	m_world = new World();

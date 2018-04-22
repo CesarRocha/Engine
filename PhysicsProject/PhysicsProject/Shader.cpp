@@ -6,11 +6,8 @@
 #include "Utilities.hpp"
 #include "Matrix4x4.hpp"
 #include "Camera3D.hpp"
+#include "LightingSystem.hpp"
 
-
-Texture* diffuseMap = nullptr;
-Texture* normalMap = nullptr;
-Texture* specularMap = nullptr;
 
 //================================================================
 Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath)
@@ -38,12 +35,6 @@ Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath)
 
 	glDeleteShader(vertShader);
 	glDeleteShader(fragShader);
-
-	//texture1 = Texture::CreateOrGetTexture("dat/test.png");
-	diffuseMap = Texture::CreateOrGetTexture("dat/container_diffuse.png");
-	normalMap = Texture::CreateOrGetTexture("dat/brick_normal.jpg");
-	specularMap = Texture::CreateOrGetTexture("dat/container_specular.png");
-
 }
 Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath, vert_t v[], int vertCount, unsigned int i[], unsigned int indexCount)
 	: Shader(vertFilePath, fragmentFilePath)
@@ -51,7 +42,7 @@ Shader::Shader(const GLchar* vertFilePath, const GLchar* fragmentFilePath, vert_
 	SetVertIndexData(v, vertCount, i, indexCount);
 }
 
-float dt = 0.0f;
+
 //================================================================
 void Shader::Render()
 {
@@ -59,10 +50,9 @@ void Shader::Render()
 	
 
 	bool bindResult = false;
-	unsigned int diffuseID = diffuseMap->GetTextureID();
-	unsigned int normalID = normalMap->GetTextureID();
-	unsigned int specID = specularMap->GetTextureID();
-
+	unsigned int diffuseID	= m_material.m_diffuseID;
+	unsigned int normalID   = m_material.m_normalID;
+	unsigned int specID		= m_material.m_specularID;
 
 
 	Matrix4x4 model = m_modelMatrix;
@@ -71,25 +61,21 @@ void Shader::Render()
 	bindResult = BindUniformVec3("gCameraPos", Camera3D::g_masterCamera->m_position);
 
 	
-	{	//Matrix math
-		bindResult = BindUniformMat4("gModel", model);
-		bindResult = BindUniformMat4("gView", view);
-		bindResult = BindUniformMat4("gProj", proj);
+	{//Matrix math
+		bindResult = BindUniformMat4("gModel",	model);
+		bindResult = BindUniformMat4("gView",	view);
+		bindResult = BindUniformMat4("gProj",	proj);
 	}
 
-	{	//Setup Material
+	{//Setup Material
 		bindResult = BindUniformTexture("gMaterial.m_diffuseMap", diffuseID, 0);
 		bindResult = BindUniformTexture("gMaterial.m_specularMap", specID, 1);
-		bindResult = BindUniformInt("gMaterial.m_shininess", 32.0f);
+		bindResult = BindUniformInt("gMaterial.m_shininess", m_material.m_shininess);
 	}
 	
-	{	//Setup Light
-		bindResult = BindUniformVec3("gLight.m_position", Vector3(2.0f, 2.0f, 2.0f));
-		bindResult = BindUniformVec3("gLight.m_ambient",  Vector3(0.1f, 0.1f, 0.1f));
-		bindResult = BindUniformVec3("gLight.m_diffuse",  Vector3(0.5f, 0.5f, 0.5f));
-		bindResult = BindUniformVec3("gLight.m_specular", Vector3(1.0f, 1.0f, 1.0f));
+	{//Setup Lights
+		BindUniformLights();
 	}
-
 	
 
 
@@ -194,6 +180,26 @@ void Shader::SetVertIndexData(vert_t v[], unsigned int vertCount, unsigned int i
 	bindResult = Shader::BindProgramAttribute(m_programID, "inColor", 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(vert_t), offsetof(vert_t, m_color));
 	bindResult = Shader::BindProgramAttribute(m_programID, "inNormal", 3, GL_FLOAT, GL_TRUE, sizeof(vert_t), offsetof(vert_t, m_normal));
 }
+void Shader::SetMaterial(Material& material)
+{
+	m_material = material;
+}
+void Shader::SetDiffuseMap(Texture* texture)
+{
+	m_material.m_diffuseID = texture->GetTextureID();
+}
+void Shader::SetSpecularMap(Texture* texture)
+{
+	m_material.m_specularID = texture->GetTextureID();
+}
+void Shader::SetNormalMap(Texture* texture)
+{
+	m_material.m_normalID = texture->GetTextureID();
+}
+void Shader::SetShininess(float strength)
+{
+	m_material.m_shininess = strength;
+}
 void Shader::AddGeometryShader(const GLchar* geoFilePath, EShaderDrawMode mode)
 {
 	GLuint geoShader = glCreateShader(GL_GEOMETRY_SHADER);
@@ -273,6 +279,103 @@ bool Shader::BindUniformTexture(const char* uniformName, const unsigned int& tex
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	return true;
 }
+void Shader::BindUniformLights()
+{
+
+	LightingSystem* lightSystem = LightingSystem::g_theLightSystem;
+	LightSource* light = nullptr;
+	bool bindResult = false;
+	char buffer[64];
+
+	unsigned int numDirectionalLights = lightSystem->GetNumDirectionalLights();
+	unsigned int numPointLights = lightSystem->GetNumPointLights();
+	unsigned int numSpotLights = lightSystem->GetNumSpotLights();
+
+	//Directional Lights
+	bindResult = BindUniformInt("gNumDirectionalLights", numDirectionalLights);
+	for (unsigned int i = 0; i < numDirectionalLights; i++)
+	{
+		light = lightSystem->GetDirectionalLightAt(i);
+	
+		sprintf_s(buffer, "gDirectionalLight[%i].ambient", i);
+		bindResult = BindUniformVec3(buffer, light->m_ambient);
+	
+		sprintf_s(buffer, "gDirectionalLight[%i].diffuse", i);
+		bindResult = BindUniformVec3(buffer, light->m_diffuse);
+	
+		sprintf_s(buffer, "gDirectionalLight[%i].specular", i);
+		bindResult = BindUniformVec3(buffer, light->m_specular);
+	
+		sprintf_s(buffer, "gDirectionalLight[%i].direction", i);
+		bindResult = BindUniformVec3(buffer, light->m_direction);
+	}
+	
+	//Point Lights
+	bindResult = BindUniformInt("gNumPointLights", numPointLights);
+	for (unsigned int i = 0; i < numPointLights; i++)
+	{
+		light = lightSystem->GetPointLightAt(i);
+	
+		sprintf_s(buffer, "gPointLight[%i].ambient", i);
+		bindResult = BindUniformVec3(buffer, light->m_ambient);
+	
+		sprintf_s(buffer, "gPointLight[%i].diffuse", i);
+		bindResult = BindUniformVec3(buffer, light->m_diffuse);
+	
+		sprintf_s(buffer, "gPointLight[%i].specular", i);
+		bindResult = BindUniformVec3(buffer, light->m_specular);
+	
+		sprintf_s(buffer, "gPointLight[%i].position", i);
+		bindResult = BindUniformVec3(buffer, light->m_position);
+	
+		sprintf_s(buffer, "gPointLight[%i].constant", i);
+		bindResult = BindUniformFloat(buffer, light->m_constant);
+	
+		sprintf_s(buffer, "gPointLight[%i].linear", i);
+		bindResult = BindUniformFloat(buffer, light->m_linear);
+	
+		sprintf_s(buffer, "gPointLight[%i].quadratic", i);
+		bindResult = BindUniformFloat(buffer, light->m_quadratic);
+	}
+	
+	//Spot Lights
+	bindResult = BindUniformInt("gNumSpotLights", numSpotLights);
+	for (unsigned int i = 0; i < numSpotLights; i++)
+	{
+		light = lightSystem->GetSpotLightAt(i);
+	
+		sprintf_s(buffer, "gSpotLight[%i].ambient", i);
+		bindResult = BindUniformVec3(buffer, light->m_ambient);
+	
+		sprintf_s(buffer, "gSpotLight[%i].diffuse", i);
+		bindResult = BindUniformVec3(buffer, light->m_diffuse);
+	
+		sprintf_s(buffer, "gSpotLight[%i].specular", i);
+		bindResult = BindUniformVec3(buffer, light->m_specular);
+
+		sprintf_s(buffer, "gSpotLight[%i].position", i);
+		bindResult = BindUniformVec3(buffer,light->m_position);
+
+		sprintf_s(buffer, "gSpotLight[%i].direction", i);
+		bindResult = BindUniformVec3(buffer, light->m_direction);
+	
+		sprintf_s(buffer, "gSpotLight[%i].cutoff", i);
+		bindResult = BindUniformFloat(buffer, light->m_cutoff);
+
+		sprintf_s(buffer, "gSpotLight[%i].outerCutoff", i);
+		bindResult = BindUniformFloat(buffer, light->m_outerCutoff);
+
+		sprintf_s(buffer, "gSpotLight[%i].constant", i);
+		bindResult = BindUniformFloat(buffer, light->m_constant);
+
+		sprintf_s(buffer, "gSpotLight[%i].linear", i);
+		bindResult = BindUniformFloat(buffer, light->m_linear);
+
+		sprintf_s(buffer, "gSpotLight[%i].quadratic", i);
+		bindResult = BindUniformFloat(buffer, light->m_quadratic);
+	}
+}
+
 
 
 

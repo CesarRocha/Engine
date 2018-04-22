@@ -6,6 +6,7 @@
 #define _Shader_
 #include "OpenGLRenderer.hpp"
 #include "GLSLFunctionLibrary.hpp"
+#include "Material.hpp"
 #include <string>
 #include <map>
 
@@ -22,7 +23,11 @@ public:
 
 	void Render();
 	void SetVertIndexData(vert_t v[], unsigned int vertCount, unsigned int i[] = NULL, unsigned int indexCount = 0);
-
+	void SetMaterial(Material& material);
+	void SetDiffuseMap(Texture* texture);
+	void SetSpecularMap(Texture* texture);
+	void SetNormalMap(Texture* texture);
+	void SetShininess(float strength);
 
 	void CompileShader(GLuint shader, std::string filePath);
 	void LinkShader(GLuint program, GLuint shader);
@@ -36,12 +41,12 @@ public:
 	bool BindUniformInt(const char* uniformName, const int& val);
 	bool BindUniformFloat(const char* uniformName, const float& val);
 	bool BindUniformMat4(const char* uniformName, const Matrix4x4& val);
-	void BindUniformTexture(const char* uniformName, const unsigned int& textureID, const unsigned int index);
-
 	bool BindUniformTexture(const char* uniformName, const unsigned int& textureID, GLint index);
-	void BindDiffuseMap();
-	void BindSpecularMap();
-	void AddModelMatrix(const Matrix4x4& m) { m_modelMatrix = m; }
+	void BindUniformLights();
+
+
+
+	void AddModelMatrix(const Matrix4x4& m) { m_modelMatrix = m; } //TEMP
 public:
 	GLuint		m_programID;
 	GLuint		m_VAO;
@@ -50,6 +55,7 @@ public:
 	EShaderDrawType	m_drawType;
 	EShaderDrawMode	m_drawMode;
 	Matrix4x4 m_modelMatrix;
+	Material m_material;
 };
 
 

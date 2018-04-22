@@ -62,8 +62,6 @@ void Camera3D::UpdateVectors()
 //================================================================
 void Camera3D::MoveForwardCameraDirection(CameraMovement direction)
 {
-	UpdateVectors();
-
 	if (direction == FORWARD)
 		m_position += m_forward * m_movementSpeed;
 	if (direction == BACKWARD)
@@ -100,7 +98,6 @@ void Camera3D::StrafeCameraDirection(CameraMovement direction)
 }
 void Camera3D::RotateCamera()
 {
-	//return;
 	POINT centerCursorPos = { 400, 300 };
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
@@ -114,5 +111,7 @@ void Camera3D::RotateCamera()
 		m_orientation.m_pitchY = -89.f;
 	if (m_orientation.m_pitchY > 89.f)
 		m_orientation.m_pitchY = 89.f;
+
+	UpdateVectors();
 }
 

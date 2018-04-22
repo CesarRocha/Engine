@@ -4,18 +4,18 @@
 #pragma once
 #ifndef _DirectionLight_
 #define _DirectionLight_
-#include "LightBase.hpp"
+#include "BaseLight.hpp"
 
 
 //================================================================
-class DirectionalLight : public LightBase
+class DirectionalLight : virtual public BaseLight
 {
 public:
 	DirectionalLight() 
 	{
 	}
 	DirectionalLight(Vector3 direction, Vector3 ambient, Vector3 diffuse, Vector3 specular) 
-		:LightBase(ambient, diffuse, specular)
+		:BaseLight(ambient, diffuse, specular)
 		, m_direction(direction) 
 	{
 	}

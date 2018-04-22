@@ -9,6 +9,6 @@ out vec4 pixelColor;
 
 void main()
 {
-	pixelColor = gLightColor;
+	pixelColor = vec4(1.0);
 }
 

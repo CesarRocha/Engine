@@ -33,6 +33,7 @@ struct Vector3
 	void operator -= (const Vector3& v);
 	void operator *= (const float s);
 
+	static const Vector3 ONE;
 	static const Vector3 ZERO;
 	static const Vector3 XUP;
 	static const Vector3 YUP;
